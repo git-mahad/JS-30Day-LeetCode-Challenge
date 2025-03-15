@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorting Algorithm Comparison</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f5f5f5;
+        }
+        .modal-dialog {
+            max-width: 800px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Sorting Algorithm Comparison</h1>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#bubbleSortModal">Bubble Sort</button>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#mergeSortModal">Merge Sort</button>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#quickSortModal">Quick Sort</button>
+        <div class="row mt-5">
+            <div class="col-md-4">
+                <canvas id="randomDatasetChart"></canvas>
+            </div>
+            <div class="col-md-4">
+                <canvas id="sortedDatasetChart"></canvas>
+            </div>
+            <div class="col-md-4">
+                <canvas id="reverseSortedDatasetChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal fade" id="bubbleSortModal" tabindex="-1" role="dialog" aria-labelledby="bubbleSortModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="bubbleSortModalLabel">Bubble Sort</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Bubble sort is a simple sorting algorithm that repeatedly steps through the list, compares adjacent elements, and swaps them if they are in the wrong order.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="mergeSortModal" tabindex="-1" role="dialog" aria-labelledby="mergeSortModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="mergeSortModalLabel">Merge Sort</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Merge sort is a divide-and-conquer algorithm that splits the input into several parts and then combines the results.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="quickSortModal" tabindex="-1" role="dialog" aria-labelledby="quickSortModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="quickSortModalLabel">Quick Sort</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Quick sort is a divide-and-conquer algorithm that picks an element as a pivot and partitions the given array around the picked pivot.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+
+    <script>
+        // C++ Implementation using Emscripten
+        var bubbleSort = function(arr) {
+            var n = arr.length;
+            for (var i = 0; i < n - 1; i++) {
+                for (var j = 0; j < n - i - 1; j++) {
+                    if (arr[j] > arr[j + 1]) {
+                        var temp = arr[j];
+                        arr[j] = arr[j + 1];
+                        arr[j + 1] = temp;
+                    }
+                }
+            }
+            return arr;
+        };
+
+        var mergeSort = function(arr) {
+            if (arr.length <= 1) {
+                return arr;
+            }
+            var mid = Math.floor(arr.length / 2);
+            var left = arr.slice(0, mid);
+            var right = arr.slice(mid);
+            return merge(mergeSort(left), mergeSort(right));
+        };
+
+        var merge = function(left, right) {
+            var result = [];
+            while (left.length > 0 && right.length > 0) {
+                if (left[0] <= right[0]) {
+                    result.push(left.shift());
+                } else {
+                    result.push(right.shift());
+                }
+            }
+            return result.concat(left).concat(right);
+        };
+
+        var quickSort = function(arr) {
+            if (arr.length <= 1) {
+                return arr;
+            }
+            var pivot = arr[0];
+            var less = [];
+            var greater = [];
+            for (var i = 1; i < arr.length; i++) {
+                if (arr[i] <= pivot) {
+                    less.push(arr[i]);
+                } else {
+                    greater.push(arr[i]);
+                }
+            }
+            return quickSort(less).concat(pivot, quickSort(greater));
+        };
+
+        // Generate random dataset
+        var randomDataset = [];
+        for (var i = 0; i < 100; i++) {
+            randomDataset.push(Math.floor(Math.random() * 100));
+        }
+
+        // Generate sorted dataset
+        var sortedDataset = [];
+        for (var i = 0; i < 100; i++) {
+            sortedDataset.push(i);
+        }
+
+        // Generate reverse-sorted dataset
+        var reverseSortedDataset = [];
+        for (var i = 100; i > 0; i--) {
+            reverseSortedDataset.push(i);
+        }
+
+        // Measure performance
+        var bubbleSortTimeRandom = performance.now();
+        bubbleSort(randomDataset.slice());
+        bubbleSortTimeRandom = performance.now() - bubbleSortTimeRandom;
+
+        var mergeSortTimeRandom = performance.now();
+        mergeSort(randomDataset.slice());
+        mergeSortTimeRandom = performance.now() - mergeSortTimeRandom;
+
+        var quickSortTimeRandom = performance.now();
+        quickSort(randomDataset.slice());
+        quickSortTimeRandom = performance.now() - quickSortTimeRandom;
+
+        var bubbleSortTimeSorted = performance.now();
+        bubbleSort(sortedDataset.slice());
+        bubbleSortTimeSorted = performance.now() - bubbleSortTimeSorted;
+
+        var mergeSortTimeSorted = performance.now();
+        mergeSort(sortedDataset.slice());
+        mergeSortTimeSorted = performance.now() - mergeSortTimeSorted;
+
+        var quickSortTimeSorted = performance.now();
+        quickSort(sortedDataset.slice());
+        quickSortTimeSorted = performance.now() - quickSortTimeSorted;
+
+        var bubbleSortTimeReverseSorted = performance.now();
+        bubbleSort(reverseSortedDataset.slice());
+        bubbleSortTimeReverseSorted = performance.now() - bubbleSortTimeReverseSorted;
+
+        var mergeSortTimeReverseSorted = performance.now();
+        mergeSort(reverseSortedDataset.slice());
+        mergeSortTimeReverseSorted = performance.now() - mergeSortTimeReverseSorted;
+
+        var quickSortTimeReverseSorted = performance.now();
+        quickSort(reverseSortedDataset.slice());
+        quickSortTimeReverseSorted = performance.now() - quickSortTimeReverseSorted;
+
+        // Create charts
+        var ctxRandom = document.getElementById('randomDatasetChart').getContext('2d');
+        var chartRandom = new Chart(ctxRandom, {
+            type: 'bar',
+            data: {
+                labels: ['Bubble Sort', 'Merge Sort', 'Quick Sort'],
+                datasets: [{
+                    label: 'Random Dataset',
+                    data: [bubbleSortTimeRandom, mergeSortTimeRandom, quickSortTimeRandom],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
+
+        var ctxSorted = document.getElementById('sortedDatasetChart').getContext('2d');
+        var chartSorted = new Chart(ctxSorted, {
+            type: 'bar',
+            data: {
+                labels: ['Bubble Sort', 'Merge Sort', 'Quick Sort'],
+                datasets: [{
+                    label: 'Sorted Dataset',
+                    data: [bubbleSortTimeSorted, mergeSortTimeSorted, quickSortTimeSorted],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
+
+        var ctxReverseSorted = document.getElementById('reverseSortedDatasetChart').getContext('2d');
+        var chartReverseSorted = new Chart(ctxReverseSorted, {
+            type: 'bar',
+            data: {
+                labels: ['Bubble Sort', 'Merge Sort', 'Quick Sort'],
+                datasets: [{
+                    label: 'Reverse-Sorted Dataset',
+                    data: [bubbleSortTimeReverseSorted, mergeSortTimeReverseSorted, quickSortTimeReverseSorted],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
+    </script>
+</body>
+</html>
